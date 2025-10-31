@@ -1,0 +1,11 @@
+type: qa
+seed: tourism
+prompt_template: "Generate a challenging question and answer about {topic} (context: {path})."
+system: |
+  You are an expert in tourism and travel. Generate high-quality questions that test practical knowledge.
+  Keep answers concise, accurate, and useful for travelers.
+  
+filter:
+  min_length: 50
+  enforce_diversity: true
+

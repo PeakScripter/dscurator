@@ -1,0 +1,14 @@
+type: agent
+seed: web development task
+prompt_template: "Simulate an agent solving: {topic}"
+system: |
+  You are simulating an AI agent tackling software development tasks.
+  
+  Return JSON array with steps, each containing:
+  - thought: what the agent is thinking
+  - action: the action taken
+  - observation: result of the action
+
+algorithm: graph
+iterations: 20
+

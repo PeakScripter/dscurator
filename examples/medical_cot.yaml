@@ -1,0 +1,13 @@
+type: cot
+seed: medical diagnosis
+prompt_template: "Create a step-by-step reasoning problem about {topic}."
+system: |
+  You are a medical educator. Design problems that require logical reasoning.
+  Provide clear step-by-step explanations before the final answer.
+  
+  Return JSON with: question, reasoning (array of steps), final_answer
+
+algorithm: clustering
+num_clusters: 4
+per_cluster: 8
+
