@@ -1,100 +1,165 @@
-# DS Curator – Domain-Specific Synthetic Data Generation Toolkit
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/LiteLLM-Multi--Provider-orange?style=for-the-badge&logo=openai&logoColor=white" />
+  <img src="https://img.shields.io/badge/OpenAI%20%7C%20Gemini%20%7C%20Claude-Supported-blueviolet?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Output-CSV%20%7C%20JSONL%20%7C%20TXT-brightgreen?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
+</p>
 
-DS Curator generates synthetic datasets from a short domain idea (e.g., "tourism").
-It expands prompts via algorithmic trees/graphs and queries your choice of LLMs to produce datasets in CSV/JSONL/TXT. It supports Q&A pairs, text corpora, chain-of-thought, and agent-like trajectories. It can resume runs from saved state.
+<h1 align="center">🗂 dscurator</h1>
 
-## Features
-- **Algorithmic prompt expansion**: BFS trees, random walks, hierarchical clustering, Markov chains, graph exploration
-- **Multi-provider**: OpenAI, Anthropic (Claude), Google (Gemini), Cohere, Groq, Ollama, via LiteLLM
-- **Dataset types**: corpus, Q&A, chain-of-thought, agent trajectories
-- **Output formats**: CSV, JSONL, TXT
-- **YAML templates**: Customizable prompts and system messages
-- **State management**: Resume interrupted runs
-- **Concurrent generation**: Parallel workers for faster generation
-- **Quality filtering**: Length checks, diversity scoring, embedding-based similarity
+<p align="center">
+  <b>Domain-specific synthetic dataset generation — from a single keyword to thousands of training examples.<br/>
+  BFS trees, Markov chains, graph expansion, concurrent generation, and quality filtering. All in one CLI.</b>
+</p>
 
-## Quickstart
+<p align="center">
+  <a href="#-how-it-works">How It Works</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-dataset-types">Dataset Types</a> •
+  <a href="#-providers">Providers</a>
+</p>
+
+---
+
+## 🔁 How It Works
+
+```
+         Input: Domain keyword (e.g., "medical imaging")
+                          │
+                          ▼
+         ┌────────────────────────────────┐
+         │     Prompt Expansion Engine    │
+         │                               │
+         │  ┌──────────┐  ┌───────────┐  │
+         │  │ BFS Tree │  │ Markov    │  │
+         │  │          │  │ Chain     │  │
+         │  └──────────┘  └───────────┘  │
+         │  ┌──────────┐  ┌───────────┐  │
+         │  │ Random   │  │ Graph     │  │
+         │  │ Walk     │  │ Expansion │  │
+         │  └──────────┘  └───────────┘  │
+         └────────────────────────────────┘
+                          │
+                          ▼ (hundreds of diverse prompts)
+         ┌────────────────────────────────┐
+         │    Concurrent LLM Generation   │
+         │    (via LiteLLM — any model)   │
+         └────────────────────────────────┘
+                          │
+                          ▼
+         ┌────────────────────────────────┐
+         │      Quality Filtering         │
+         │  - Length checks               │
+         │  - Diversity scoring           │
+         │  - Embedding similarity        │
+         └────────────────────────────────┘
+                          │
+                          ▼
+         📦 Dataset: CSV / JSONL / TXT
+            (Q&A, corpus, CoT, agent trajectories)
+```
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🧠 **Algorithmic Prompt Expansion** | BFS trees, random walks, Markov chains, hierarchical clustering, graph traversal |
+| 🔌 **Multi-Provider Support** | OpenAI, Anthropic (Claude), Google (Gemini), Cohere, Groq, Ollama — unified via LiteLLM |
+| 📊 **Multiple Dataset Types** | Q&A pairs, text corpora, chain-of-thought, agent trajectories |
+| 📁 **Flexible Output Formats** | CSV, JSONL, TXT — ready for fine-tuning pipelines |
+| ⚡ **Concurrent Generation** | Parallel workers for fast, large-scale dataset creation |
+| 🔍 **Quality Filtering** | Length checks, diversity scoring, embedding-based deduplication |
+| 💾 **Resumable Runs** | Save state and continue interrupted generation jobs |
+| 📝 **YAML Templates** | Fully customizable prompts and system messages |
+
+---
+
+## ⚡ Quick Start
+
 ```bash
-# Create virtual environment (Windows PowerShell)
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+# Clone
+git clone https://github.com/PeakScripter/dscurator.git
+cd dscurator
 
-# Install dependencies
+# Install
 pip install -r requirements.txt
 
-# Set API keys
-$env:OPENAI_API_KEY = "your-key-here"
-$env:ANTHROPIC_API_KEY = "your-key-here"  # optional
+# Set your API key (any supported provider)
+export OPENAI_API_KEY=your_key_here
+# or GOOGLE_API_KEY, ANTHROPIC_API_KEY, etc.
 
-# Generate 100 tourism Q&A pairs
-python -m dscurator run --domain "tourism" --dataset qa --model "gpt-4o-mini" --format csv --limit 100
+# Generate a Q&A dataset for "medical imaging"
+python main.py --domain "medical imaging" --type qa --output dataset.jsonl
 
-# Use concurrent generation (4 workers) with quality filtering
-python -m dscurator run --domain "tourism" --dataset qa --algorithm clustering --num_workers 4 --enforce_diversity --min_quality_score 0.3
+# Generate with Gemini, 500 examples, concurrent
+python main.py --domain "astronomy" --type corpus --provider gemini --count 500 --workers 8
 ```
 
-## Algorithms
+---
 
-Choose expansion strategies:
-- **bfs** (default): Breadth-first tree expansion
-- **walk**: Random walk through related topics
-- **clustering**: Hierarchical clustering approach
-- **markov**: Markov chain generation
-- **graph**: Graph traversal with neighbor exploration
+## 📦 Dataset Types
 
-## Templates
+| Type | Description | Use Case |
+|------|-------------|----------|
+| `qa` | Question-answer pairs | Instruction fine-tuning |
+| `corpus` | Domain text passages | Language model pre-training |
+| `cot` | Chain-of-thought reasoning | Reasoning fine-tuning |
+| `agent` | Tool-use / agent trajectories | Agent fine-tuning (ReAct, etc.) |
 
-Export and customize templates:
+---
+
+## 🔌 Providers
+
+dscurator uses **LiteLLM** as a unified gateway — switch providers with a single flag:
+
 ```bash
-python -m dscurator init-template --type qa --out template.qa.yaml
+--provider openai      # GPT-4o, GPT-3.5, etc.
+--provider gemini      # Gemini 1.5 Pro / Flash
+--provider claude      # Claude 3.5 Sonnet / Haiku
+--provider groq        # Llama, Mixtral (fast inference)
+--provider ollama      # Local models (no API key needed)
 ```
 
-Use example templates in `examples/`:
-```bash
-python -m dscurator run --template examples/tourism_qa.yaml --model "gpt-4o-mini" --format jsonl
+---
+
+## Prompt Expansion Algorithms
+
+```
+BFS Tree         — breadth-first expansion of topic subtopics
+Random Walk      — stochastic exploration of the topic space
+Markov Chain     — probabilistic next-topic generation
+Graph Expansion  — knowledge-graph-style traversal
+Hierarchical     — cluster-then-expand for diverse coverage
 ```
 
-## Resume a run
-```bash
-python -m dscurator run --resume RUN_2025-10-31_12-00-00
+---
+
+## 🗂 Output Structure
+
+```
+output/
+├── dataset.jsonl        # Generated examples (JSONL)
+├── dataset.csv          # Same data in CSV format
+├── prompts_used.txt     # All expanded prompts (for inspection)
+└── run_state.json       # Checkpoint for resumable runs
 ```
 
-## Advanced Options
+---
 
-**Concurrent generation**: Speed up with parallel workers
-```bash
-python -m dscurator run --domain "finance" --num_workers 8 --algorithm markov
-```
+## 🛠️ Tech Stack
 
-**Quality filtering**: Use embedding-based diversity checking
-```bash
-python -m dscurator run --domain "science" --enforce_diversity --min_quality_score 0.5
-```
+- **Language:** Python 3.10+
+- **LLM Gateway:** LiteLLM (multi-provider)
+- **Graph Algorithms:** NetworkX
+- **Embeddings:** sentence-transformers (for quality filtering)
+- **Concurrency:** asyncio + ThreadPoolExecutor
 
-**Resume interrupted runs**: State is saved in `runs/<run_id>/`
-```bash
-python -m dscurator run --resume RUN_2025-01-15_14-30-00
-```
+---
 
-## Providers
+## 📄 License
 
-Powered by `litellm`; supports OpenAI, Anthropic, Google, Cohere, Groq, Ollama, and many more.
-
-Set environment variables: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, etc.
-For Ollama/local models: `LITELLM_API_BASE=http://localhost:11434`
-
-## Examples
-
-See `examples/` for domain-specific templates:
-- Tourism Q&A pairs
-- Medical chain-of-thought reasoning
-- Tech agent trajectories
-
-## Notes
-
-- Agent trajectories prompt the model for JSON step arrays
-- CoT datasets include explicit reasoning fields
-- Quality filtering uses sentence-transformers embeddings (auto-downloads on first use)
-- Concurrent workers help with high-volume generation, but watch rate limits
-
-
+MIT License — see LICENSE for details.
